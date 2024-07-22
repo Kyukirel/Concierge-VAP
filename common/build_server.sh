@@ -95,7 +95,22 @@ cp -r $COMMON_DIR/frozen_inference_graph.pb .
 # for video in ./*; do cp -r ../dds-adaptive/data-set/$video/src/ $video/; done
 
 cd $HOME
-sudo mkdir /tmp/ramdisk
-sudo chmod 777 /tmp/ramdisk
+
+if mountpoint -q /tmp/ramdisk; then
+    echo "/tmp/ramdisk is already mounted. Unmounting now."
+    sudo umount /tmp/ramdisk
+fi
+
+if [ -d "/tmp/ramdisk" ]; then
+    echo "/tmp/ramdisk exists. Clearing its contents."
+    sudo rm -rf /tmp/ramdisk/*
+    sudo chmod 777 /tmp/ramdisk
+else
+    echo "Creating /tmp/ramdisk directory."
+    sudo mkdir /tmp/ramdisk
+    sudo chmod 777 /tmp/ramdisk
+fi
+
 sudo mount -t tmpfs -o size=80g myramdisk /tmp/ramdisk
+echo "Ramdisk mounted."
 mv VAP-Concierge/ /tmp/ramdisk/.
