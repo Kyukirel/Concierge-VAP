@@ -23,9 +23,15 @@ cd dds-zharfanf/
 
 git checkout edge
 
-yq -i '.dependencies[1] = tensorflow=1.14' conda_environment_configuration.yml
+yq -i '(.dependencies[] | select(. == "tensorflow-gpu=1.14")) = "tensorflow=1.14"' conda_environment_configuration.yml
 
-conda env create -f conda_environment_configuration.yml
+if conda env list | grep 'dds'; then
+    echo "Environment 'dds' already exists. Updating the environment."
+    conda env update -f conda_environment_configuration.yml --name dds
+else
+    echo "Creating new 'dds' environment."
+    conda env create -f conda_environment_configuration.yml
+fi
 
 conda activate dds
 
@@ -41,16 +47,24 @@ cd $COMMON_DIR
 
 if [ ! -f "data-set-dds.zip" ]; then
     gdown --id 1_dReQ4jiPCtAQvHZSN56MKyGr5dV1MfR
+else
+    echo "data-set-dds.zip exists."
 fi
 
 if [ ! -f "frozen_inference_graph.pb" ]; then
     wget people.cs.uchicago.edu/~kuntai/frozen_inference_graph.pb
+else
+    echo "frozen_inference_graph.pb exists."
 fi
 
 cd $HOME/dds-zharfanf/
-unzip -o $COMMON_DIR/data-set-dds.zip -d .
+
+echo "Unzipping data-set-dds.zip..."
+unzip -o $COMMON_DIR/data-set-dds.zip -d . > /dev/null
+echo "Unzip process finished."
+
 rm -rf data-set
-mv data-set-dds data-set
+mv data-set-cpy data-set
 
 cp -r $COMMON_DIR/frozen_inference_graph.pb .
 cp -r frozen_inference_graph.pb ./workspace
@@ -58,7 +72,7 @@ cp -r frozen_inference_graph.pb ./workspace
 
 # Build Concierge
 cd $HOME
-git clone https://github.com/zharfanf/VAP-Concierge.git
+git clone https://github.com/Kyukirel/VAP-Concierge.git
 cd VAP-Concierge/
 
 git checkout vap-zharfanf
