@@ -85,7 +85,9 @@ else
     echo "data-set-dds.tar.gz exists."
 fi
 
-tar xvgf data-set-dds.tar.gz -C "$DDS_DIR"
+tar xvf data-set-dds.tar.gz
+new_item=$(tar tf data-set-dds.tar.gz | head -n 1 | cut -d '/' -f 1)
+mv "$new_item" "$DDS_DIR"
 
 if [ ! -f "frozen_inference_graph.pb" ]; then
     echo "Downloading frozen_inference_graph.pb..."
