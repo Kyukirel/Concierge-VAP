@@ -1,14 +1,7 @@
 #!/bin/bash
 
 echo "Setting up server environment..."
-
 set -e  # Exit immediately if a command exits with a non-zero status
-
-# Define common directories
-COMMON_DIR="$HOME/Concierge-VAP/common"
-DDS_DIR="$HOME/dds-zharfanf"
-VAP_DIR="$HOME/VAP-Concierge"
-RAMDISK_DIR="/tmp/ramdisk"
 
 # Function to install required packages
 install_packages() {
@@ -23,12 +16,10 @@ install_packages() {
     done
 }
 
-# Update and install essential packages
-echo "Updating package lists and installing essentials..."
-sudo apt-get update -y
+# Tools Installation
+cd $HOME
+sudo apt-get update
 install_packages iperf3 ffmpeg unzip wget
-
-# Install yq separately since it might not be available in default repos
 if ! command -v yq &>/dev/null; then
     echo "Installing yq..."
     sudo wget -q https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
@@ -47,8 +38,8 @@ fi
 
 # Initialize conda
 eval "$($HOME/miniconda3/bin/conda shell.bash hook)"
-
-# Clone DDS repository
+# Build DDS and environment
+DDS_DIR="$HOME/dds-zharfanf"
 if [[ ! -d "$DDS_DIR" ]]; then
     echo "Cloning DDS repository..."
     git clone https://github.com/zharfanf/dds-zharfanf.git "$DDS_DIR"
@@ -59,7 +50,6 @@ fi
 pushd "$DDS_DIR" > /dev/null
 git checkout edge
 
-# Update Conda environment
 yq -i '(.dependencies[] | select(. == "tensorflow-gpu=1.14")) = "tensorflow=1.14"' conda_environment_configuration.yml
 
 if conda env list | grep 'dds'; then
@@ -72,7 +62,7 @@ fi
 
 conda activate dds
 
-# Ensure Python packages are installed within the Conda environment
+# Install libraries for DDS
 python_packages=(gdown pandas matplotlib grpcio grpcio-tools jupyter)
 for package in "${python_packages[@]}"; do
     if ! pip show "$package" &>/dev/null; then
@@ -84,16 +74,18 @@ for package in "${python_packages[@]}"; do
 done
 popd > /dev/null
 
-# Download Common Data
+# Download dataset
+COMMON_DIR="$HOME/common_file"
 mkdir -p "$COMMON_DIR"
 pushd "$COMMON_DIR" > /dev/null
-
-if [ ! -f "data-set-dds.zip" ]; then
-    echo "Downloading data-set-dds.zip..."
-    gdown --id 1_dReQ4jiPCtAQvHZSN56MKyGr5dV1MfR
+if [ ! -f "data-set-dds.tar.gz" ]; then
+    echo "Downloading data-set-dds.tar.gz..."
+    gdown --id 1khK3tPfdqonzpgT_cF8gaQs_rPdBkdKZ
 else
-    echo "data-set-dds.zip exists."
+    echo "data-set-dds.tar.gz exists."
 fi
+
+tar xvgf data-set-dds.tar.gz -C "$DDS_DIR"
 
 if [ ! -f "frozen_inference_graph.pb" ]; then
     echo "Downloading frozen_inference_graph.pb..."
@@ -101,75 +93,62 @@ if [ ! -f "frozen_inference_graph.pb" ]; then
 else
     echo "frozen_inference_graph.pb exists."
 fi
+
+cp ./frozen_inference_graph.pb "$DDS_DIR"
+cp ./frozen_inference_graph.pb "$DDS_DIR/workspace"
 popd > /dev/null
 
-# Prepare DDS Data
-pushd "$DDS_DIR" > /dev/null
-
-echo "Unzipping data-set-dds.zip..."
-unzip -oq "$COMMON_DIR/data-set-dds.zip" -d .
-
-if [ ! -d "data-set-cpy" ]; then
-    echo "Unzip process failed: data-set-cpy does not exist."
-    exit 1
-fi
-
-rm -rf data-set
-mv data-set-cpy data-set
-
-cp -r "$COMMON_DIR/frozen_inference_graph.pb" .
-cp -r frozen_inference_graph.pb ./workspace
-popd > /dev/null
-
-# Clone and Prepare VAP Concierge
+## Build Concierge and environment
+VAP_DIR="$HOME/VAP-Concierge"
 if [[ ! -d "$VAP_DIR" ]]; then
     echo "Cloning VAP Concierge repository..."
-    git clone https://github.com/Kyukirel/VAP-Concierge.git "$VAP_DIR"
+    git clone https://github.com/zharfanf/VAP-Concierge.git
 else
     echo "VAP Concierge repository already cloned."
 fi
-
 pushd "$VAP_DIR" > /dev/null
+
 git checkout vap-zharfanf
+cd src/app/dds-adaptive/
+# Download model for dds
+cp -r "$COMMON_DIR/frozen_inference_graph.pb" .
+
+
+# Awstream Setup
+cd ../awstream-adaptive/
+# Download model for awstream
+if [[ ! -d "ssd_mobilenet_v2_coco_2018_03_29" ]]; then
+    echo "Downloading ssd_mobilenet_v2_coco_2018_03_29..."
+    wget -q http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_coco_2018_03_29.tar.gz
+    tar xvzf ssd_mobilenet_v2_coco_2018_03_29.tar.gz
+    cp ssd_mobilenet_v2_coco_2018_03_29/frozen_inference_graph.pb .
+else
+    echo "ssd_mobilenet_v2_coco_2018_03_29 exists."
+fi
 popd > /dev/null
 
-# Copy necessary files to AWStream and Adaptive directories
-ADAPTIVE_DIR="$VAP_DIR/src/app/dds-adaptive"
-AWSTREAM_DIR="$VAP_DIR/src/app/awstream-adaptive"
 
-for dir in "$ADAPTIVE_DIR" "$AWSTREAM_DIR"; do
-    if [[ -d "$dir" ]]; then
-        echo "Copying frozen inference graph to $dir..."
-        cp -r "$COMMON_DIR/frozen_inference_graph.pb" "$dir"
-    fi
-done
+# Migrate Concierge to tmp filesystem with ramdisk installed
+# Location: /tmp/ramdisk/VAP-Concierge/
+RAMDISK_DIR="/tmp/ramdisk"
+if mountpoint -q "$RAMDISK_DIR"; then
+    echo "Ramdisk is already mounted."
+    sudo umount "$RAMDISK_DIR"
+fi
+if  [[ ! -d "$RAMDISK_DIR" ]]; then
+    echo "Creating $RAMDISK_DIR directory."
+    sudo mkdir "$RAMDISK_DIR"
+fi
 
-# Setup RAM Disk
-setup_ramdisk() {
-    if mountpoint -q "$RAMDISK_DIR"; then
-        echo "$RAMDISK_DIR is already mounted. Unmounting now."
-        sudo umount "$RAMDISK_DIR"
-    fi
+echo "$RAMDISK_DIR exists. Cleaning up the directory."
+sudo rm -rf "$RAMDISK_DIR/*"
+sudo chmod 777 "$RAMDISK_DIR"
+sudo mount -t tmpfs -o size=100g myramdisk "$RAMDISK_DIR"
+echo "Ramdisk mounted."
 
-    if [ ! -d "$RAMDISK_DIR" ]; then
-        echo "Creating $RAMDISK_DIR directory."
-        sudo mkdir "$RAMDISK_DIR"
-    fi
+echo "Migrating VAP-Concierge to ramdisk..."
+mv VAP-Concierge/ /tmp/ramdisk/.
 
-    echo "$RAMDISK_DIR exists. Clearing its contents."
-    sudo rm -rf "$RAMDISK_DIR"/*
-
-    sudo chmod 777 "$RAMDISK_DIR"
-    sudo mount -t tmpfs -o size=80g myramdisk "$RAMDISK_DIR"
-    echo "Ramdisk mounted."
-}
-
-setup_ramdisk
-
-# Move VAP Concierge to RAM Disk
-mv "$VAP_DIR" "$RAMDISK_DIR/"
-
-# Update .bashrc
+# Update the path
+echo 'export PATH=$PATH:/home/cc/miniconda3/bin' >> ~/.bashrc
 source ~/.bashrc
-
-echo "Setup completed successfully!"
