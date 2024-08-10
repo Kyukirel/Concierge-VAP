@@ -87,6 +87,7 @@ fi
 
 tar xvf data-set-dds.tar.gz
 new_ite_dds=$(tar tf data-set-dds.tar.gz | head -n 1 | cut -d '/' -f 1)
+rm -rf "$DDS_DIR/$new_item_dds"
 mv "$new_ite_dds" "$DDS_DIR"
 
 cp ./frozen_inference_graph.pb "$DDS_DIR"
@@ -123,6 +124,7 @@ fi
 
 tar xvzf data-set-awstream.tar.gz
 new_item_awstream=$(tar tf data-set-awstream.tar.gz | head -n 1 | cut -d '/' -f 1)
+rm -rf "$$HOME/VAP-Concierge/src/app/awstream-adaptive/$new_item_awstream"
 mv "$new_item_awstream" "$HOME/VAP-Concierge/src/app/awstream-adaptive/"
 popd > /dev/null
 
