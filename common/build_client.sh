@@ -132,7 +132,7 @@ if [ ! -f "data-set-awstream.tar.gz" ]; then
         echo "Downloaded data-set-awstream.tar.gz with the first ID."
     else
         echo "Failed to download with the first ID. Trying with the new ID..."
-        if gdown --id 2nd-id; then
+        if gdown --id 11KiKKLLuMyJLTu1jsVOfkPIa0EV0QhyN; then
             echo "Downloaded data-set-awstream.tar.gz with the new ID."
         else
             echo "Failed to download with both IDs."
