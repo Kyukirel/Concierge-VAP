@@ -80,7 +80,18 @@ mkdir -p "$COMMON_DIR"
 pushd "$COMMON_DIR" > /dev/null
 if [ ! -f "data-set-dds.tar.gz" ]; then
     echo "Downloading data-set-dds.tar.gz..."
-    gdown --id 1khK3tPfdqonzpgT_cF8gaQs_rPdBkdKZ
+    if gdown --id 1khK3tPfdqonzpgT_cF8gaQs_rPdBkdKZ; then
+        echo "Downloaded data-set-dds.tar.gz with the first ID."
+    else
+        # If download fails, try with the second ID
+        echo "Failed to download with the first ID. Trying with the new ID..."
+        if gdown --id 1TXnkaAstdFjWAZfne-UTcgpoSMcNyGqJ; then
+            echo "Downloaded data-set-dds.tar.gz with the new ID."
+        else
+            echo "Failed to download with both IDs."
+            exit 1
+        fi
+    fi
 else
     echo "data-set-dds.tar.gz exists."
 fi
