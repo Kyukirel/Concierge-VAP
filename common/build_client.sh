@@ -97,7 +97,7 @@ else
 fi
 
 tar xvf data-set-dds.tar.gz
-new_ite_dds=$(tar tf data-set-dds.tar.gz | head -n 1 | cut -d '/' -f 1)
+new_item_dds=$(tar tf data-set-dds.tar.gz | head -n 1 | cut -d '/' -f 1)
 rm -rf "$DDS_DIR/$new_item_dds"
 mv "$new_ite_dds" "$DDS_DIR"
 
