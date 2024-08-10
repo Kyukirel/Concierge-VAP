@@ -50,7 +50,7 @@ fi
 pushd "$DDS_DIR" > /dev/null
 git checkout edge
 
-yq -i '.dependencies[1] = tensorflow=1.14' conda_environment_configuration.yml
+yq -i '(.dependencies[] | select(. == "tensorflow-gpu=1.14")) = "tensorflow=1.14"' conda_environment_configuration.yml
 
 if conda env list | grep 'dds'; then
     echo "Environment 'dds' already exists. Updating the environment."
