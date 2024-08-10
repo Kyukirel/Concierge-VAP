@@ -99,7 +99,7 @@ fi
 tar xvf data-set-dds.tar.gz
 new_item_dds=$(tar tf data-set-dds.tar.gz | head -n 1 | cut -d '/' -f 1)
 rm -rf "$DDS_DIR/$new_item_dds"
-mv "$new_ite_dds" "$DDS_DIR"
+mv "$new_item_dds" "$DDS_DIR"
 
 cp ./frozen_inference_graph.pb "$DDS_DIR"
 cp ./frozen_inference_graph.pb "$DDS_DIR/workspace"
@@ -110,7 +110,8 @@ popd > /dev/null
 VAP_DIR="$HOME/VAP-Concierge"
 if [[ ! -d "$VAP_DIR" ]]; then
     echo "Cloning VAP Concierge repository..."
-    git clone https://github.com/zharfanf/VAP-Concierge.git
+    # git clone https://github.com/zharfanf/VAP-Concierge.git
+    git clone git clone https://github.com/Kyukirel/VAP-Concierge.git
 else
     echo "VAP Concierge repository already cloned."
 fi
@@ -174,4 +175,3 @@ mv VAP-Concierge/ /tmp/ramdisk/.
 # Update the path
 echo 'export PATH=$PATH:/home/cc/miniconda3/bin' >> ~/.bashrc
 source ~/.bashrc
-
