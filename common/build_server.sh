@@ -116,13 +116,31 @@ popd > /dev/null
 VAP_DIR="$HOME/VAP-Concierge"
 if [[ ! -d "$VAP_DIR" ]]; then
     echo "Cloning VAP Concierge repository..."
-    git clone https://github.com/zharfanf/VAP-Concierge.git
+    # git clone https://github.com/zharfanf/VAP-Concierge.git
+    git clone https://github.com/Kyukirel/VAP-Concierge.git
 else
     echo "VAP Concierge repository already cloned."
 fi
 pushd "$VAP_DIR" > /dev/null
 
 git checkout vap-zharfanf
+
+# Update the IP address in envTest.sh and run_zharfanf.sh
+DEFAULT_CLIENT_IP="10.140.81.162"
+read -p "Enter the IP address to use (or press Enter to use the default [$DEFAULT_CLIENT_IP]): " USER_INPUT_IP
+CLIENT_IP=${USER_INPUT_IP:-$DEFAULT_CLIENT_IP}
+echo "Using IP address: $CLIENT_IP"
+# Search for the first eligible IP address in the envTest.sh file and store it in ORIGINAL_IP
+ORIGINAL_IP=$(grep -oP '(?<=http://)\d{1,3}(\.\d{1,3}){3}(?=:6000/)' src/envTest.sh | head -n 1)
+if [ -z "$ORIGINAL_IP" ]; then
+    echo "No IP address found in envTest.sh matching the pattern 'http://<IP>:6000/'. Exiting."
+    exit 1
+fi
+echo "Original IP found: $ORIGINAL_IP"
+# Replace the original IP with the new CLIENT_IP in envTest.sh and run_zharfanf.sh
+sed -i "s|$ORIGINAL_IP|$CLIENT_IP|g" src/envTest.sh
+sed -i "s|$ORIGINAL_IP|$CLIENT_IP|g" src/run_zharfanf.sh
+
 cd src/app/dds-adaptive/
 # Download model for dds
 cp -r "$COMMON_DIR/frozen_inference_graph.pb" .
@@ -162,7 +180,11 @@ echo "Ramdisk mounted."
 
 echo "Migrating VAP-Concierge to ramdisk..."
 mv VAP-Concierge/ /tmp/ramdisk/.
+echo "VAP-Concierge is moved to ramdisk."
 
 # Update the path
+echo "Exporting PATH..."
 echo 'export PATH=$PATH:/home/cc/miniconda3/bin' >> ~/.bashrc
+echo "Restarting the shell..."
 source ~/.bashrc
+echo "Server environment setup is completed."
