@@ -111,7 +111,7 @@ VAP_DIR="$HOME/VAP-Concierge"
 if [[ ! -d "$VAP_DIR" ]]; then
     echo "Cloning VAP Concierge repository..."
     # git clone https://github.com/zharfanf/VAP-Concierge.git
-    git clone git clone https://github.com/Kyukirel/VAP-Concierge.git
+    git clone https://github.com/Kyukirel/VAP-Concierge.git
 else
     echo "VAP Concierge repository already cloned."
 fi
@@ -173,5 +173,8 @@ echo "Migrating VAP-Concierge to ramdisk..."
 mv VAP-Concierge/ /tmp/ramdisk/.
 
 # Update the path
+echo "Exporting PATH..."
 echo 'export PATH=$PATH:/home/cc/miniconda3/bin' >> ~/.bashrc
+echo "Restarting the shell..."
 source ~/.bashrc
+echo "Client environment setup is completed."
