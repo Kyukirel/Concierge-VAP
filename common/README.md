@@ -36,6 +36,7 @@ Follow these steps to configure the client device for the VAP Concierge applicat
 2. **Activate the Conda Environment**
 
    Activate the `dds` Conda environment using this 3 command:
+
    Initialize Conda in your shell environment:
    ```sh
    conda init
