@@ -101,6 +101,13 @@ new_item_dds=$(tar tf data-set-dds.tar.gz | head -n 1 | cut -d '/' -f 1)
 rm -rf "$DDS_DIR/$new_item_dds"
 mv "$new_item_dds" "$DDS_DIR"
 
+if [ ! -f "frozen_inference_graph.pb" ]; then
+    echo "Downloading frozen_inference_graph.pb..."
+    wget -q http://people.cs.uchicago.edu/~kuntai/frozen_inference_graph.pb
+else
+    echo "frozen_inference_graph.pb exists."
+fi
+
 cp ./frozen_inference_graph.pb "$DDS_DIR"
 cp ./frozen_inference_graph.pb "$DDS_DIR/workspace"
 popd > /dev/null
