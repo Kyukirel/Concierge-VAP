@@ -188,3 +188,13 @@ echo 'export PATH=$PATH:/home/cc/miniconda3/bin' >> ~/.bashrc
 echo "Restarting the shell..."
 source ~/.bashrc
 echo "Server environment setup is completed."
+
+# Additions to the script to update the firewall rules
+sudo iptables-save > ~/iptables-backup.txt
+sudo iptables -F
+sudo iptables -t nat -F
+sudo iptables -t mangle -F
+sudo iptables -X
+sudo iptables -P INPUT ACCEPT
+sudo iptables -P FORWARD ACCEPT
+sudo iptables -P OUTPUT ACCEPT
