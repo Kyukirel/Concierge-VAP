@@ -198,3 +198,6 @@ sudo iptables -X
 sudo iptables -P INPUT ACCEPT
 sudo iptables -P FORWARD ACCEPT
 sudo iptables -P OUTPUT ACCEPT
+sudo firewall-cmd --complete-reload
+sudo firewall-cmd --zone=trusted --add-interface=eno1 --permanent
+sudo firewall-cmd --reload
