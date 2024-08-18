@@ -41,7 +41,7 @@ setup_ramdisk
 update_firewall_rules
 
 # Addition(s) to correct some of the code(s)
-./edit_code_client.sh
+source $THIS_CODE_DIR/edit_code_client.sh
 
 # Update the path
 setup_path_and_conda
