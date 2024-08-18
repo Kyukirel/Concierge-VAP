@@ -201,3 +201,9 @@ sudo iptables -P OUTPUT ACCEPT
 sudo firewall-cmd --complete-reload
 sudo firewall-cmd --zone=trusted --add-interface=eno1 --permanent
 sudo firewall-cmd --reload
+
+
+# Addition(s) to correct some of the code(s)
+RUNAPP_PATH="/tmp/ramdisk/VAP-Concierge/src/runApp.py"
+sed -i '/subprocess.Popen(\[\"sudo\", \"\/home\/cc\/miniconda3\/envs\/dds\/bin\/python\", \"cache_video.py\"/s|\"cache_video.py\"|\"app/cache_video.py\"|' $RUNAPP_PATH
+echo "Updated runApp.py to use relative path for cache_video.py in the specific context."
