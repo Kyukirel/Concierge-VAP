@@ -159,6 +159,7 @@ git checkout vap-zharfanf
 # Function that will be used at the end of the script
 setup_ramdisk() {
     # Migrate Concierge to tmp filesystem with ramdisk installed
+    echo "Setting up ramdisk..."
     RAMDISK_DIR="/tmp/ramdisk"
     if mountpoint -q "$RAMDISK_DIR"; then
         echo "Ramdisk is already mounted."
@@ -181,6 +182,7 @@ setup_ramdisk() {
 
 update_firewall_rules() {
     # Update the firewall rules
+    echo "Updating firewall rules..."
     sudo iptables-save > ~/iptables-backup.txt
     sudo iptables -F
     sudo iptables -t nat -F
