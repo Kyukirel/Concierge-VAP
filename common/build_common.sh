@@ -148,12 +148,13 @@ VAP_DIR="$HOME/VAP-Concierge"
 if [[ ! -d "$VAP_DIR" ]]; then
     echo "Cloning VAP Concierge repository..."
     # git clone https://github.com/zharfanf/VAP-Concierge.git
-    git clone https://github.com/Kyukirel/VAP-Concierge.git
+    # git clone https://github.com/Kyukirel/VAP-Concierge.git
+    git clone https://github.com/Rafael-SW048/VAP-Concierge.git
 else
     echo "VAP Concierge repository already cloned."
 fi
 pushd "$VAP_DIR" > /dev/null
-git checkout vap-zharfanf
+# git checkout vap-zharfanf
 
 
 # Function that will be used at the end of the script
