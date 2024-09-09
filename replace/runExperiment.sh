@@ -3,7 +3,10 @@
 export PYTHONPATH='/tmp/ramdisk/VAP-Concierge/src/'
 
 EXPERIMENT_PIDS=()
-jupyter_ip=$1  # Capture the IP address passed as the first argument
+
+# Start the Flask status API in the background
+python3 /tmp/ramdisk/VAP-Concierge/src/api_status.py &
+API_PID=$!  # Store the PID of the API so we can kill it later
 
 cleanup() {
     for pid in "${EXPERIMENT_PIDS[@]}"; do
@@ -19,17 +22,22 @@ cleanup() {
 		fi
 	done
 
-    # Handle the case where the Jupyter IP is not provided
-    if [ -z "$jupyter_ip" ]; then
-        echo "No Jupyter IP provided, skipping notification."
-    else
-        # Define the Flask API endpoint for notifying experiment completion (use the Jupyter IP)
-        ENDPOINT_URL="http://$jupyter_ip:5000/experiment_finished"
+    # Notify the status API that the experiment is completed
+    curl -X POST "http://localhost:5001/set_status/completed"
 
-        # Send a message to the endpoint with experiment status
-        curl -X POST -H "Content-Type: application/json" -d '{"status": "completed"}' $ENDPOINT_URL
-    fi
+    # Wait for client acknowledgment
+    echo "Waiting for client acknowledgment..."
+    while true; do
+        client_ack=$(curl -s http://localhost:5001/status | grep -o '"acknowledged":true')
+        if [ "$client_ack" == '"acknowledged":true' ]; then
+            echo "Client acknowledgment received. Proceeding with shutdown."
+            break
+        fi
+        sleep 10  # Check every 10 seconds
+    done
 
+    # Kill the API process after acknowledgment
+    kill $API_PID
     exit 0
 }
 
