@@ -203,8 +203,7 @@ setup_path_and_conda() {
     echo 'export PATH=$PATH:/home/cc/miniconda3/bin' >> ~/.bashrc
     echo "Applying the changes to the current shell..."
     source ~/.bashrc
-    echo "Initializing conda..."
-    conda init bash
-    echo "Client environment setup is completed. Restart the shell to apply the changes."
-    exec bash
+    echo "Initializing conda in a new terminal..."
+    gnome-terminal -- bash -c "conda init bash; exec bash"
+    echo "Client environment setup is completed. Please check the new terminal for conda initialization."
 }
