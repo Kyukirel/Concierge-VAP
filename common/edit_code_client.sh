@@ -20,5 +20,36 @@ correct_code() {
     fi
 }
 
+# Function to replace the entire file with an updated one
+replace_code_file() {
+    local outdated_file="$1"
+    local new_file="$2"
+    
+    # Check if both files exist
+    if [ -f "$new_file" ]; then
+        if [ -f "$outdated_file" ]; then
+            # Backup the old file
+            cp "$outdated_file" "${outdated_file}.bak"
+            echo "Backup created for $outdated_file as ${outdated_file}.bak"
+
+            # Replace the outdated file with the new one
+            cp "$new_file" "$outdated_file"
+            if [ $? -eq 0 ]; then
+                echo "Successfully replaced $outdated_file with $new_file."
+            else
+                echo "Failed to replace $outdated_file."
+            fi
+        else
+            echo "Outdated file $outdated_file not found!"
+        fi
+    else
+        echo "New file $new_file not found!"
+    fi
+}
+
 RUNAPP_PATH="/tmp/ramdisk/VAP-Concierge/src/runApp.py"
 correct_code "$RUNAPP_PATH" '/subprocess.Popen(\[\"sudo\", \"\/home\/cc\/miniconda3\/envs\/dds\/bin\/python\", \"cache_video.py\"/s|\"cache_video.py\"|\"app/cache_video.py\"|' "Update the path to cache_video.py in runApp.py"
+
+replace_code_file "/tmp/ramdisk/VAP-Concierge/src/server.py" "/home/cc/Concierge-VAP/replace/server.py"
+replace_code_file "/tmp/ramdisk/VAP-Concierge/src/runExperiment.sh" "/home/cc/Concierge-VAP/replace/runExperiment.sh"
+
