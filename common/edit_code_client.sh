@@ -50,6 +50,5 @@ replace_code_file() {
 RUNAPP_PATH="/tmp/ramdisk/VAP-Concierge/src/runApp.py"
 correct_code "$RUNAPP_PATH" '/subprocess.Popen(\[\"sudo\", \"\/home\/cc\/miniconda3\/envs\/dds\/bin\/python\", \"cache_video.py\"/s|\"cache_video.py\"|\"app/cache_video.py\"|' "Update the path to cache_video.py in runApp.py"
 
-replace_code_file "/tmp/ramdisk/VAP-Concierge/src/server.py" "/home/cc/Concierge-VAP/replace/server.py"
 replace_code_file "/tmp/ramdisk/VAP-Concierge/src/runExperiment.sh" "/home/cc/Concierge-VAP/replace/runExperiment.sh"
 
