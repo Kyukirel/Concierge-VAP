@@ -23,12 +23,12 @@ cleanup() {
 	done
 
     # Notify the status API that the experiment is completed
-    curl -X POST "http://localhost:5001/set_status/completed"
+    curl -X POST "http://localhost:6001/set_status/completed"
 
     # Wait for client acknowledgment
     echo "Waiting for client acknowledgment..."
     while true; do
-        client_ack=$(curl -s http://localhost:5001/status | grep -o '"acknowledged":true')
+        client_ack=$(curl -s http://localhost:6001/status | grep -o '"acknowledged":true')
         if [ "$client_ack" == '"acknowledged":true' ]; then
             echo "Client acknowledgment received. Proceeding with shutdown."
             break
