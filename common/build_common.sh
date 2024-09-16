@@ -205,6 +205,5 @@ setup_path_and_conda() {
     echo "Applying the changes to the current shell..."
     source ~/.bashrc
     echo "Initializing conda in a new terminal..."
-    conda init bash && source ~/.bashrc &
-    echo "Client environment setup is completed. Please check the new terminal for conda initialization."
+    conda init bash && source ~/.bashrc && conda --version && echo "Client environment setup is completed. Please check the new terminal for conda initialization."
 }
