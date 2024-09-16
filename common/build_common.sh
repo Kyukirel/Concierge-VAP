@@ -69,6 +69,7 @@ fi
 
 # Initialize conda
 eval "$($HOME/miniconda3/bin/conda shell.bash hook)"
+
 # Build DDS and environment
 DDS_DIR="$HOME/dds-zharfanf"
 if [[ ! -d "$DDS_DIR" ]]; then
