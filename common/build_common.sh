@@ -1,6 +1,8 @@
 #!/bin/bash
 
 echo "Running common build script..."
+git config --global user.email "18120048@std.stei.itb.ac.id"
+git config --global user.name "Rafael-SW048"
 
 # Function to install required packages
 install_packages() {
