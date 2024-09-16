@@ -41,12 +41,20 @@ replace_code_file() {
             fi
         else
             echo "Outdated file $outdated_file not found!"
+            echo "Copying the new file to the specified path..."
+            cp "$new_file" "$outdated_file"
         fi
     else
         echo "New file $new_file not found!"
     fi
 }
 
+# If VAP-Concierge Repo is changed to new version, comment all of the following line
 RUNAPP_PATH="/tmp/ramdisk/VAP-Concierge/src/runApp.py"
 correct_code "$RUNAPP_PATH" '/subprocess.Popen(\[\"sudo\", \"\/home\/cc\/miniconda3\/envs\/dds\/bin\/python\", \"cache_video.py\"/s|\"cache_video.py\"|\"app/cache_video.py\"|' "Update the path to cache_video.py in runApp.py"
 
+# Replace the outdated file with the new one
+replace_code_file "/tmp/ramdisk/VAP-Concierge/src/runExperiment.sh" "/home/cc/Concierge-VAP/replace/runExperiment.sh"
+
+# Copy api_status.py to working directory
+cp "/home/cc/Concierge-VAP/replace/api_status.py" "/tmp/ramdisk/VAP-Concierge/src/api_status.py"

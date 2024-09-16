@@ -4,9 +4,8 @@ export PYTHONPATH='/tmp/ramdisk/VAP-Concierge/src/'
 
 EXPERIMENT_PIDS=()
 
-# Start the Flask status API in the background
 python3 /tmp/ramdisk/VAP-Concierge/src/api_status.py &
-API_PID=$!  # Store the PID of the API so we can kill it later
+API_PID=$!
 
 cleanup() {
     for pid in "${EXPERIMENT_PIDS[@]}"; do
@@ -22,7 +21,6 @@ cleanup() {
 		fi
 	done
 
-    # Notify the status API that the experiment is completed
     curl -X POST "http://localhost:6001/set_status/completed"
 
     # Wait for client acknowledgment
@@ -33,10 +31,9 @@ cleanup() {
             echo "Client acknowledgment received. Proceeding with shutdown."
             break
         fi
-        sleep 10  # Check every 10 seconds
+        sleep 10
     done
 
-    # Kill the API process after acknowledgment
     kill $API_PID
     exit 0
 }
