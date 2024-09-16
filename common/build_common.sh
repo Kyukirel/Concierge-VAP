@@ -149,13 +149,13 @@ VAP_DIR="$HOME/VAP-Concierge"
 if [[ ! -d "$VAP_DIR" ]]; then
     echo "Cloning VAP Concierge repository..."
     # git clone https://github.com/zharfanf/VAP-Concierge.git
-    # git clone https://github.com/Kyukirel/VAP-Concierge.git
-    git clone https://github.com/Rafael-SW048/VAP-Concierge.git
+    git clone https://github.com/Kyukirel/VAP-Concierge.git
+    # git clone https://github.com/Rafael-SW048/VAP-Concierge.git
 else
     echo "VAP Concierge repository already cloned."
 fi
 pushd "$VAP_DIR" > /dev/null
-# git checkout vap-zharfanf
+git checkout vap-zharfanf
 
 
 # Function that will be used at the end of the script
@@ -205,5 +205,5 @@ setup_path_and_conda() {
     echo "Applying the changes to the current shell..."
     source ~/.bashrc
     echo "Initializing conda in a new terminal..."
-    conda init bash && source ~/.bashrc && conda --version && echo "Client environment setup is completed. Please check the new terminal for conda initialization."
+    conda init bash && source ~/.bashrc && conda --version && echo "Client environment setup is completed. Please check the new terminal for conda initialization." && conda activate dds
 }
