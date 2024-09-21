@@ -31,4 +31,4 @@ update_firewall_rules
 source $THIS_CODE_DIR/edit_code_server.sh "$1"
 
 # Update the path
-setup_path_and_conda
+setup_path_and_conda && echo "success" > /home/cc/Concierge-VAP/common/build_server_success.txt
