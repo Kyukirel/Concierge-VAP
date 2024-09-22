@@ -25,6 +25,7 @@ setup_dds
 setup_vap_concierge
 
 # Run server-specific tasks
+COMMON_DIR="$HOME/common_file"
 pushd "$HOME/VAP-Concierge/src/app/dds-adaptive/" > /dev/null
 cp -r "$COMMON_DIR/frozen_inference_graph.pb" .
 

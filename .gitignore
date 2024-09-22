@@ -59,3 +59,7 @@ ignore/**
 
 # Ignore all files with a specific extension in a specific directory and its subdirectories
 ignore/**/*.ignore
+
+# Ignore spesiic files
+build_server_success.txt
+build_client_success.txt
