@@ -11,14 +11,15 @@ Welcome to the **VAP Concierge Application** setup guide. This document provides
 
 ## General Explanation
 
-The **VAP Concierge Application** is designed to run on a network of client-server architecture. The client device is responsible for user interactions and data entry, while the server device processes the data and manages the backend operations. Ensuring both devices are correctly configured is crucial for the application to function effectively.
+The **VAP Concierge Application** is designed to run on a network of client-server architecture.
+
+<!-- Need more explanation -->
 
 ## Prerequisites
 
 Before proceeding with the setup, ensure you have the following:
 
 - Access to both the client and server devices.
-- Necessary permissions to execute scripts on both devices.
 - Network connectivity between client and server devices.
 
 ## Client Device Setup
@@ -30,10 +31,19 @@ Follow these steps to configure the client device for the VAP Concierge applicat
    Open a terminal on the client device and run the following command to grant execute permissions to the `build_client.sh` script:
 
    ```sh
-   chmod +x build_client.sh
+   chmod +x ./Concierge-VAP/common/build_client.sh
    ```
 
-2. **Activate the Conda Environment**
+2. **Execute build script**
+
+   
+   ```sh
+   ./Concierge-VAP/common/build_client.sh {Github Username} {Github Token}
+   ```
+
+   For more information on how to generate a GitHub Token, you can access this [link](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+
+3. **Activate the Conda Environment**
 
    Activate the `dds` Conda environment using this 3 command:
 
@@ -65,7 +75,7 @@ Follow these steps to configure the client device for the VAP Concierge applicat
    Start the client application by executing the server script:
 
    ```sh
-   python server.py
+   python server.py > server.log
    ```
 
    **Note:** Remember to note down the local IP or global IP address of this client device, as it is required for configuring the server device.
@@ -79,10 +89,39 @@ Follow these steps to configure the server device:
    Open a terminal on the server device and run the following command:
 
    ```sh
-   chmod +x build_server.sh
+   chmod +x ./Concierge-VAP/common/build_server.sh
    ```
 
-2. **Navigate to the Source Directory**
+2. **Execute build script**
+
+   
+   ```sh
+   ./Concierge-VAP/common/build_client.sh {Github Username} {Github Token} {Client IP}
+   ```
+
+   For more information on how to generate a GitHub Token, you can access this [link](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+
+
+3. **Activate the Conda Environment**
+
+   Activate the `dds` Conda environment using this 3 command:
+
+   Initialize Conda in your shell environment:
+   ```sh
+   conda init
+   ```
+   Reload your shell configuration:
+   ```sh
+   source ~/.bashrc
+   ```
+   Activate the dds environment:
+   ```sh
+   conda activate dds
+   ```
+
+   Ensure that all dependencies required by the application are installed within this environment.
+
+4. **Navigate to the Source Directory**
 
    Change the current directory to the application's source code directory on the server:
 
@@ -90,19 +129,12 @@ Follow these steps to configure the server device:
    cd /tmp/ramdisk/VAP-Concierge/src
    ```
 
-3. **Edit Configuration Files**
-
-   Update the necessary configuration files with the client IP address:
-
-   - **`envTest.sh`**: Modify this script to include the client's IP address where applicable.
-   - **`run_zharfanf.sh`**: Ensure this script is also updated with the correct client IP address.
-
-4. **Run the Server Configuration Script**
+5. **Run the Server Configuration Script**
 
    Execute the server environment test script using bash:
 
    ```sh
-   bash envTest.sh
+   bash envTest.sh > envTest.log
    ```
 
    This script will ensure that the server environment is correctly configured and ready to communicate with the client device.
