@@ -21,6 +21,7 @@ source "$THIS_CODE_DIR/build_common.sh"
 install_tools
 install_miniconda
 setup_dds
+setup_vap_concierge
 
 # Download and extract datasets for the client environment
 COMMON_DIR="$HOME/common_file"

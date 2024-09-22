@@ -22,6 +22,7 @@ source "$THIS_CODE_DIR/build_common.sh"
 install_tools
 install_miniconda
 setup_dds
+setup_vap_concierge
 
 # Run server-specific tasks
 pushd "$HOME/VAP-Concierge/src/app/dds-adaptive/" > /dev/null

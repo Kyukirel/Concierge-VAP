@@ -108,6 +108,21 @@ setup_dds() {
     popd > /dev/null
 }
 
+# Function to clone the VAP Concierge repository
+setup_vap_concierge() {
+    VAP_DIR="$HOME/VAP-Concierge"
+    if [[ ! -d "$VAP_DIR" ]]; then
+        echo "Cloning VAP Concierge repository..."
+        git clone https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Kyukirel/VAP-Concierge.git "$VAP_DIR"
+    else
+        echo "VAP Concierge repository already cloned."
+    fi
+
+    pushd "$VAP_DIR" > /dev/null
+    git checkout vap-zharfanf
+    popd > /dev/null
+}
+
 # Function that will be used at the end of the script
 setup_ramdisk() {
     echo "Setting up ramdisk..."
