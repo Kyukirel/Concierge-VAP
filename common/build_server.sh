@@ -85,7 +85,7 @@ setup_ramdisk
 update_firewall_rules
 
 # Additional code corrections
-source "$THIS_CODE_DIR/edit_code_server.sh" "$CLIENT_IP"
+source "/home/cc/Concierge-VAP/common/edit_code_server.sh" "$CLIENT_IP"
 
 # Update paths and conda environment
 if setup_path_and_conda; then
