@@ -2,6 +2,10 @@
 
 echo "Running common build script..."
 
+# Log output to a file
+LOGFILE="build_common.log"
+exec > >(tee -a "$LOGFILE") 2>&1
+
 # Function to install required packages
 install_packages() {
     local packages=("$@")
@@ -15,19 +19,24 @@ install_packages() {
     done
 }
 
-# Function to display a rotating spinner
+# Function to display a rotating spinner (only if output is to a terminal)
 spinner() {
     local pid=$1
     local delay=0.1
     local spinstr='|/-\'
-    while kill -0 $pid 2>/dev/null; do
-        local temp=${spinstr#?}
-        printf " [%c]  " "$spinstr"
-        spinstr=$temp${spinstr%"$temp"}
-        sleep $delay
-        printf "\b\b\b\b\b\b"
-    done
-    printf "    \b\b\b\b"
+    
+    if [[ -t 1 && -t 2 ]]; then
+        while kill -0 $pid 2>/dev/null; do
+            local temp=${spinstr#?}
+            printf " [%c]  " "$spinstr"
+            spinstr=$temp${spinstr%"$temp"}
+            sleep $delay
+            printf "\b\b\b\b\b\b"
+        done
+        printf "    \b\b\b\b"
+    else
+        wait $pid
+    fi
 }
 
 # Function to run a command with a spinner
@@ -72,12 +81,59 @@ install_miniconda() {
     eval "$($HOME/miniconda3/bin/conda shell.bash hook)"
 }
 
+# Download Concierge model
+download_concierge_model() {
+    local COMMON_DIR="$HOME/common_file"
+    if [[ ! -d "$COMMON_DIR" ]]; then
+        mkdir -p "$COMMON_DIR"
+    fi
+
+    pushd "$COMMON_DIR" > /dev/null
+    if [[ ! -f "frozen_inference_graph.pb" ]]; then
+        echo "Downloading frozen_inference_graph.pb..."
+        wget people.cs.uchicago.edu/~kuntai/frozen_inference_graph.pb
+    fi
+    popd > /dev/null
+}
+
+# Function to download the DDS dataset
+download_dds_dataset() {
+    local COMMON_DIR="$HOME/common_file"
+    if [[ ! -d "$COMMON_DIR" ]]; then
+        mkdir -p "$COMMON_DIR"
+    fi
+
+    pushd "$COMMON_DIR" > /dev/null
+    if [[ ! -f "data-set-dds.tar.gz" ]]; then
+        echo "Downloading data-set-dds.tar.gz..."
+        if gdown --id 1khK3tPfdqonzpgT_cF8gaQs_rPdBkdKZ; then
+            echo "Downloaded data-set-dds.tar.gz with the first ID."
+        else
+            # If download fails, try with the second ID
+            echo "Failed to download with the first ID. Trying with the new ID..."
+            if gdown --id 1TXnkaAstdFjWAZfne-UTcgpoSMcNyGqJ; then
+                echo "Downloaded data-set-dds.tar.gz with the new ID."
+            else
+                echo "Failed to download with both IDs."
+                exit 1
+            fi
+        fi
+    else
+        echo "data-set-dds.tar.gz exists."
+    fi
+    popd > /dev/null
+}
+
 # Clone the DDS repository and set up the environment
 setup_dds() {
-    DDS_DIR="$HOME/dds-zharfanf"
+    local DDS_DIR="$HOME/dds-zharfanf"
+    local COMMON_DIR="$HOME/common_file"
     if [[ ! -d "$DDS_DIR" ]]; then
         echo "Cloning DDS repository..."
-        git clone https://github.com/zharfanf/dds-zharfanf.git "$DDS_DIR"
+        if ! git clone https://github.com/zharfanf/dds-zharfanf.git "$DDS_DIR"; then
+            echo "Error: Failed to clone DDS repository." >&2
+            exit 1
+        fi
     else
         echo "DDS repository already cloned."
     fi
@@ -105,15 +161,27 @@ setup_dds() {
             echo "Python package $package is already installed in Conda environment."
         fi
     done
+
+    cp -r "$COMMON_DIR/frozen_inference_graph.pb" "$DDS_DIR"
+    cp -r "$COMMON_DIR/frozen_inference_graph.pb" "$DDS_DIR/workspace"
+
+    download_dds_dataset
+    run_with_spinner "tar xvzf $COMMON_DIR/data-set-dds.tar.gz"
+    if $test_mode; then
+        rm -rf "$COMMON_DIR/data-set-dds.tar.gz"
+    fi
     popd > /dev/null
 }
 
 # Function to clone the VAP Concierge repository
 setup_vap_concierge() {
-    VAP_DIR="$HOME/VAP-Concierge"
+    local VAP_DIR="$HOME/VAP-Concierge"
     if [[ ! -d "$VAP_DIR" ]]; then
         echo "Cloning VAP Concierge repository..."
-        git clone https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Kyukirel/VAP-Concierge.git "$VAP_DIR"
+        if ! git clone https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Kyukirel/VAP-Concierge.git "$VAP_DIR"; then
+            echo "Error: Failed to clone VAP Concierge repository." >&2
+            exit 1
+        fi
     else
         echo "VAP Concierge repository already cloned."
     fi
@@ -123,10 +191,10 @@ setup_vap_concierge() {
     popd > /dev/null
 }
 
-# Function that will be used at the end of the script
+# Function to set up ramdisk
 setup_ramdisk() {
     echo "Setting up ramdisk..."
-    RAMDISK_DIR="/tmp/ramdisk"
+    local RAMDISK_DIR="/tmp/ramdisk"
     if mountpoint -q "$RAMDISK_DIR"; then
         echo "Ramdisk is already mounted."
         sudo umount "$RAMDISK_DIR"
@@ -159,7 +227,7 @@ update_firewall_rules() {
     sudo firewall-cmd --reload
 }
 
-# Common path and conda setup
+# Function to set up PATH and Conda
 setup_path_and_conda() {
     echo "Exporting PATH..."
     echo 'export PATH=$PATH:/home/cc/miniconda3/bin' >> ~/.bashrc

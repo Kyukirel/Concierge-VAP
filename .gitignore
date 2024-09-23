@@ -63,3 +63,4 @@ ignore/**/*.ignore
 # Ignore spesiic files
 build_server_success.txt
 build_client_success.txt
+test_*
