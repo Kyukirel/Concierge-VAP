@@ -58,3 +58,4 @@ replace_code_file "/tmp/ramdisk/VAP-Concierge/src/runExperiment.sh" "/home/cc/Co
 
 # Copy api_status.py to working directory
 cp "/home/cc/Concierge-VAP/replace/api_status.py" "/tmp/ramdisk/VAP-Concierge/src/api_status.py"
+cp "/home/cc/Concierge-VAP/replace/server.py" "/tmp/ramdisk/VAP-Concierge/src/server.py"
