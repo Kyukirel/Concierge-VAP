@@ -86,6 +86,8 @@ popd > /dev/null
 setup_ramdisk
 update_firewall_rules
 
+source "/home/cc/Concierge-VAP/common/edit_code_client.sh"
+
 # Update paths and conda environment
 if setup_path_and_conda; then
     echo "success" > /home/cc/Concierge-VAP/common/build_client_success.txt

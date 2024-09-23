@@ -195,6 +195,7 @@ setup_vap_concierge() {
 setup_ramdisk() {
     echo "Setting up ramdisk..."
     local RAMDISK_DIR="/tmp/ramdisk"
+    local VAP_DIR="$HOME/VAP-Concierge"
     if mountpoint -q "$RAMDISK_DIR"; then
         echo "Ramdisk is already mounted."
         sudo umount "$RAMDISK_DIR"
@@ -208,6 +209,7 @@ setup_ramdisk() {
     sudo rm -rf "$RAMDISK_DIR/*"
     sudo chmod 777 "$RAMDISK_DIR"
     sudo mount -t tmpfs -o size=100g myramdisk "$RAMDISK_DIR"
+    mv $VAP_DIR $RAMDISK_DIR
     echo "Ramdisk mounted."
 }
 
