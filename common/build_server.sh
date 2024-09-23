@@ -89,7 +89,7 @@ source "/home/cc/Concierge-VAP/common/edit_code_server.sh" "$CLIENT_IP"
 
 # Update paths and conda environment
 if setup_path_and_conda; then
-    echo "success" > $THIS_CODE_DIR/build_server_success.txt
+    echo "success" > /home/cc/Concierge-VAP/common/build_server_success.txt
 else
     echo "Error: Path and Conda setup failed." >&2
     exit 1
