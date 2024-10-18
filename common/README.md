@@ -75,7 +75,7 @@ Follow these steps to configure the client device for the VAP Concierge applicat
    Start the client application by executing the server script:
 
    ```sh
-   python server.py > server.log
+   python server.py > server.log 2>&1
    ```
 
    **Note:** Remember to note down the local IP or global IP address of this client device, as it is required for configuring the server device.
@@ -134,7 +134,7 @@ Follow these steps to configure the server device:
    Execute the server environment test script using bash:
 
    ```sh
-   bash envTest.sh > envTest.log
+   bash envTest.sh > envTest.log 2>&1
    ```
 
    This script will ensure that the server environment is correctly configured and ready to communicate with the client device.
