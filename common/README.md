@@ -96,7 +96,7 @@ Follow these steps to configure the server device:
 
    
    ```sh
-   ./Concierge-VAP/common/build_client.sh {Github Username} {Github Token} {Client IP}
+   ./Concierge-VAP/common/build_server.sh {Github Username} {Github Token} {Client IP}
    ```
 
    For more information on how to generate a GitHub Token, you can access this [link](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
