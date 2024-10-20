@@ -4,8 +4,16 @@ export PYTHONPATH='/tmp/ramdisk/VAP-Concierge/src/'
 
 EXPERIMENT_PIDS=()
 
-python3 /tmp/ramdisk/VAP-Concierge/src/api_status.py &
-API_PID=$!
+# Get the argument passed for API status
+API_STATUS=$1
+
+if [ "$API_STATUS" = "true" ]; then
+    python3 /tmp/ramdisk/VAP-Concierge/src/api_status.py &
+    API_PID=$!
+    echo "api_status.py started with PID $API_PID"
+else
+    echo "api_status.py will not be started as per argument"
+fi
 
 cleanup() {
     for pid in "${EXPERIMENT_PIDS[@]}"; do
@@ -21,20 +29,25 @@ cleanup() {
 		fi
 	done
 
-    curl -X POST "http://localhost:6001/set_status/completed"
+    if [ "$API_STATUS" = "true" ]; then
+        # Only run this block if API_STATUS is true
+        curl -X POST "http://localhost:6001/set_status/completed"
 
-    # Wait for client acknowledgment
-    echo "Waiting for client acknowledgment..."
-    while true; do
-        client_ack=$(curl -s http://localhost:6001/status | grep -o '"acknowledged":true')
-        if [ "$client_ack" == '"acknowledged":true' ]; then
-            echo "Client acknowledgment received. Proceeding with shutdown."
-            break
-        fi
-        sleep 10
-    done
+        # Wait for client acknowledgment
+        echo "Waiting for client acknowledgment..."
+        while true; do
+            client_ack=$(curl -s http://localhost:6001/status | grep -o '"acknowledged":true')
+            if [ "$client_ack" == '"acknowledged":true' ]; then
+                echo "Client acknowledgment received. Proceeding with shutdown."
+                break
+            fi
+            sleep 10
+        done
 
-    kill $API_PID
+        # Kill api_status.py process if it was started
+        kill $API_PID
+    fi
+
     exit 0
 }
 
@@ -42,7 +55,6 @@ rm -rf ./app/app*
 
 trap cleanup SIGINT SIGKILL SIGTERM
 python runApp.py > /tmp/null &
-# python runApp.py &
 echo $!
 EXPERIMENT_PIDS+=($!)
 
