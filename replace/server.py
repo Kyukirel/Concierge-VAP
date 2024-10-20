@@ -1,12 +1,18 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 import os
 import subprocess
 import signal
+import argparse
 
 app = Flask(__name__)
 
 # Initialize process variable
 process = None
+
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description='Control the API status flag.')
+parser.add_argument('--api_status', type=str, default='false', help='Set to true to run api_status.py, false otherwise.')
+args = parser.parse_args()
 
 @app.route('/start', methods=['GET'])
 def index():
@@ -15,7 +21,9 @@ def index():
     
     # Change directory and start the experiment script
     os.chdir('/tmp/ramdisk/VAP-Concierge/src/')
-    process = subprocess.Popen(["bash", "runExperiment.sh"])  # Start the process
+    
+    # Start the process, passing the api_status argument to the script
+    process = subprocess.Popen(["bash", "runExperiment.sh", args.api_status])  # Pass argument to the bash script
     
     print(f"Process started with PID: {process.pid}")
     return jsonify({"status": "success", "pid": process.pid})
